@@ -245,7 +245,7 @@ class _AuthHero extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Aurora Store', style: AppTextStyle.h3),
+                Text('Store for Sellers', style: AppTextStyle.h3),
                 const SizedBox(height: 6),
                 Text(
                   'Live orders, dashboard metrics and shop status updates.',
