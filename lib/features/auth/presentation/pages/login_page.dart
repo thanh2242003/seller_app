@@ -24,12 +24,26 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  late final AuthCubit _authCubit;
   String? _validationError;
+
+  @override
+  void initState() {
+    super.initState();
+    final repository = AuthRepositoryImpl();
+    _authCubit = AuthCubit(
+      signInUseCase: SignInUseCase(repository),
+      signUpUseCase: SignUpUseCase(repository),
+      refreshShopStatusUseCase: RefreshShopStatusUseCase(repository),
+      signOutUseCase: SignOutUseCase(repository),
+    );
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _authCubit.close();
     super.dispose();
   }
 
@@ -44,21 +58,13 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    context.read<AuthCubit>().signIn(email: email, password: password);
+    _authCubit.signIn(email: email, password: password);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (_) {
-        final repository = AuthRepositoryImpl();
-        return AuthCubit(
-          signInUseCase: SignInUseCase(repository),
-          signUpUseCase: SignUpUseCase(repository),
-          refreshShopStatusUseCase: RefreshShopStatusUseCase(repository),
-          signOutUseCase: SignOutUseCase(repository),
-        );
-      },
+    return BlocProvider<AuthCubit>.value(
+      value: _authCubit,
       child: BlocConsumer<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>
             previous.isSuccess != current.isSuccess ||
