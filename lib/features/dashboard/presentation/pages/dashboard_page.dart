@@ -154,7 +154,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         label: 'Total orders',
                         value: metrics.totalOrders.toString(),
                         helper:
-                            '${metrics.ordersByStatus['pending'] ?? 0} pending',
+                            '${metrics.ordersByStatus['pending']?.count ?? 0} pending',
                         icon: Icons.receipt_long_rounded,
                         color: Colors.blue,
                       ),
@@ -167,7 +167,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       _MetricTile(
                         label: 'Low stock',
-                        value: metrics.lowStockProducts.length.toString(),
+                        value: metrics.lowStockInventory.length.toString(),
                         helper: 'Need restock now',
                         icon: Icons.warning_rounded,
                         color: Colors.purple,
@@ -184,7 +184,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: metrics.ordersByStatus.entries
                           .map(
                             (entry) => StatusPill(
-                              label: '${entry.key}: ${entry.value}',
+                              label:
+                                  '${entry.key}: ${entry.value.count} | ${AppNumberFormat.format(entry.value.revenue)}',
                               color: colorScheme.primary,
                             ),
                           )
@@ -203,20 +204,22 @@ class _DashboardPageState extends State<DashboardPage> {
                               child: _ProductRow(
                                 title: item.title,
                                 subtitle: '${item.totalSold} sold',
-                                trailing: AppNumberFormat.format(item.revenue),
+                                trailing: AppNumberFormat.format(
+                                  item.totalRevenue,
+                                ),
                               ),
                             ),
                           )
                           .toList(),
                     ),
                   ),
-                  if (metrics.lowStockProducts.isNotEmpty) ...[
+                  if (metrics.lowStockInventory.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     SectionCard(
                       title: 'Low stock products',
                       subtitle: 'Items that need attention',
                       child: Column(
-                        children: metrics.lowStockProducts
+                        children: metrics.lowStockInventory
                             .map(
                               (item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 12),

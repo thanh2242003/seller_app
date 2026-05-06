@@ -11,6 +11,8 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.isPassword = false,
     this.prefixIcon,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   final String label;
@@ -19,6 +21,8 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final bool isPassword;
   final IconData? prefixIcon;
+  final int maxLines;
+  final int? minLines;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -33,6 +37,8 @@ class _AppTextFieldState extends State<AppTextField> {
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       obscureText: widget.isPassword && _obscureText,
+      maxLines: widget.isPassword ? 1 : widget.maxLines,
+      minLines: widget.minLines,
       style: AppTextStyle.withColor(AppTextStyle.bodyMedium, Colors.grey),
       decoration: InputDecoration(
         labelText: widget.label,

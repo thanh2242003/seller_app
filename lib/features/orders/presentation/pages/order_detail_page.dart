@@ -53,7 +53,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
           if (state.errorMessage != null && order == null) {
             return Scaffold(
-              appBar: AppBar(title: Text('Order ${widget.orderId}')),
+              appBar: AppBar(title: Text('Order Detail')),
               body: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -86,7 +86,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           final colorScheme = Theme.of(context).colorScheme;
 
           return Scaffold(
-            appBar: AppBar(title: Text('Order ${widget.orderId}')),
+            appBar: AppBar(title: Text('Order Detail')),
             body: RefreshIndicator(
               onRefresh: () => _reload(context),
               child: ListView(
@@ -103,7 +103,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       children: [
                         Row(
                           children: [
-                            Text(order.id, style: AppTextStyle.h2),
+                            Text(order.id, style: AppTextStyle.h3),
                             const Spacer(),
                             StatusPill(
                               label: order.status,

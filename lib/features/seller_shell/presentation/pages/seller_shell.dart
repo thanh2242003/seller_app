@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../../../orders/presentation/pages/orders_page.dart';
+import '../../../products/presentation/pages/products_page.dart';
 import '../../../shop_profile/presentation/pages/shop_profile_page.dart';
 
 class SellerShell extends StatefulWidget {
@@ -17,6 +18,7 @@ class _SellerShellState extends State<SellerShell> {
   final List<Widget> _pages = const [
     DashboardPage(),
     OrdersPage(),
+    ProductsPage(),
     ShopProfilePage(),
   ];
 
@@ -39,6 +41,10 @@ class _SellerShellState extends State<SellerShell> {
           NavigationDestination(
             icon: Icon(Icons.receipt_long_rounded),
             label: 'Orders',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_rounded),
+            label: 'Products',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_rounded),
