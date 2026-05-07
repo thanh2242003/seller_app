@@ -5,7 +5,6 @@ import '../theme/app_text_styles.dart';
 class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
-    required this.label,
     required this.hint,
     this.controller,
     this.keyboardType,
@@ -15,7 +14,6 @@ class AppTextField extends StatefulWidget {
     this.minLines,
   });
 
-  final String label;
   final String hint;
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -39,17 +37,16 @@ class _AppTextFieldState extends State<AppTextField> {
       obscureText: widget.isPassword && _obscureText,
       maxLines: widget.isPassword ? 1 : widget.maxLines,
       minLines: widget.minLines,
-      style: AppTextStyle.withColor(AppTextStyle.bodyMedium, Colors.grey),
+      style: AppTextStyle.withColor(AppTextStyle.bodyMedium, Colors.black),
       decoration: InputDecoration(
-        labelText: widget.label,
-        labelStyle: AppTextStyle.withColor(
+        hintText: widget.hint,
+        hintStyle: AppTextStyle.withColor(
           AppTextStyle.bodyMedium,
           Colors.grey[400]!,
         ),
         prefixIcon: widget.prefixIcon != null
             ? Icon(widget.prefixIcon, color: Colors.grey[400])
             : null,
-        hintText: widget.hint,
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: () {

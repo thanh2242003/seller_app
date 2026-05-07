@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/services/app_session.dart';
+import '../../../auth/data/models/auth_models.dart';
+import '../../../auth/data/repositories/auth_repository_impl.dart';
+import '../../../auth/presentation/pages/shop_access_gate_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../seller_shell/presentation/pages/seller_shell.dart';
@@ -21,7 +24,9 @@ class _AppStartScreenState extends State<AppStartScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 1400), _routeNext);
+    _timer = Timer(const Duration(milliseconds: 1400), () {
+      unawaited(_routeNext());
+    });
   }
 
   @override
@@ -30,14 +35,31 @@ class _AppStartScreenState extends State<AppStartScreen> {
     super.dispose();
   }
 
-  void _routeNext() {
+  Future<void> _routeNext() async {
     if (!mounted) {
       return;
     }
 
-    final nextPage = AppSession.instance.isAuthenticated
-        ? const SellerShell()
-        : const OnboardingPage();
+    final repository = AuthRepositoryImpl();
+    AuthStatusModel? status;
+
+    try {
+      status = await repository.restoreSession();
+    } catch (_) {
+      status = null;
+    }
+
+    Widget nextPage;
+    if (!AppSession.instance.isAuthenticated || status == null) {
+      nextPage = const OnboardingPage();
+    } else if (status.isActive) {
+      nextPage = const SellerShell();
+    } else {
+      nextPage = ShopAccessGatePage(
+        status: status,
+        shopName: AppSession.instance.shopName,
+      );
+    }
 
     Navigator.of(
       context,

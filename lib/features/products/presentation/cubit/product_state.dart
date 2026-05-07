@@ -66,6 +66,7 @@ class ProductDetailState {
     this.errorMessage,
     this.product,
     this.saveSuccess = false,
+    this.categories = const [],
   });
 
   final bool isLoading;
@@ -73,6 +74,7 @@ class ProductDetailState {
   final String? errorMessage;
   final ProductDetailModel? product;
   final bool saveSuccess;
+  final List<CategoryModel> categories;
 
   factory ProductDetailState.initial() {
     return const ProductDetailState(isLoading: false, isSaving: false);
@@ -85,6 +87,7 @@ class ProductDetailState {
     bool clearError = false,
     ProductDetailModel? product,
     bool? saveSuccess,
+    List<CategoryModel>? categories,
   }) {
     return ProductDetailState(
       isLoading: isLoading ?? this.isLoading,
@@ -92,6 +95,7 @@ class ProductDetailState {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       product: product ?? this.product,
       saveSuccess: saveSuccess ?? this.saveSuccess,
+      categories: categories ?? this.categories,
     );
   }
 }

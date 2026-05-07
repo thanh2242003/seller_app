@@ -195,7 +195,7 @@ class _OrderCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text('#${order.id}', style: AppTextStyle.h3),
+                Text('#${order.id}', style: AppTextStyle.h4),
                 const Spacer(),
                 StatusPill(
                   label: order.status,
@@ -204,10 +204,10 @@ class _OrderCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(order.shippingAddress, style: AppTextStyle.buttonLarge),
+            Text("Address: ${order.address}", style: AppTextStyle.buttonLarge),
             const SizedBox(height: 4),
             Text(
-              '${order.items.length} item(s) · ${AppNumberFormat.format(order.totalAmount)}',
+              '${order.items.length} item(s) · ${AppNumberFormat.format(order.finalPrice)}',
               style: AppTextStyle.bodyMedium.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),

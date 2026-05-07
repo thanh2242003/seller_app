@@ -124,7 +124,6 @@ class _LoginPageState extends State<LoginPage> {
                     const _AuthHero(),
                     const SizedBox(height: 28),
                     AppTextField(
-                      label: 'Seller email',
                       hint: 'seller@yourshop.com',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -132,7 +131,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
-                      label: 'Password',
                       hint: '••••••••',
                       controller: _passwordController,
                       isPassword: true,

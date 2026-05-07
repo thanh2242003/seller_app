@@ -42,4 +42,7 @@ abstract class ProductRepository {
   // Delete product
   Future<void> deleteProduct(String productId);
   Future<void> permanentlyDeleteProduct(String productId);
+
+  // Get categories
+  Future<List<CategoryModel>> getCategories();
 }

@@ -71,8 +71,8 @@ class OrderSummaryModel {
     required this.shopId,
     required this.status,
     required this.items,
-    required this.totalAmount,
-    required this.shippingAddress,
+    required this.finalPrice,
+    required this.address,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -82,8 +82,8 @@ class OrderSummaryModel {
   final String shopId;
   final String status;
   final List<OrderSummaryItemModel> items;
-  final int totalAmount;
-  final String shippingAddress;
+  final int finalPrice;
+  final String address;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -100,8 +100,8 @@ class OrderSummaryModel {
             ),
           )
           .toList(),
-      totalAmount: _intValue(json['totalAmount']),
-      shippingAddress: json['shippingAddress']?.toString() ?? '',
+      finalPrice: _intValue(json['finalPrice']),
+      address: json['address']?.toString() ?? '',
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
     );
@@ -142,22 +142,26 @@ class OrderDetailModel {
   OrderDetailModel({
     required this.id,
     required this.customer,
+    required this.receiverName,
+    required this.receiverPhone,
     required this.shopId,
     required this.status,
     required this.items,
-    required this.totalAmount,
-    required this.shippingAddress,
+    required this.finalPrice,
+    required this.address,
     required this.createdAt,
     required this.updatedAt,
   });
 
   final String id;
   final OrderCustomerModel customer;
+  final String receiverName;
+  final String receiverPhone;
   final String shopId;
   final String status;
   final List<OrderDetailItemModel> items;
-  final int totalAmount;
-  final String shippingAddress;
+  final int finalPrice;
+  final String address;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -167,6 +171,8 @@ class OrderDetailModel {
       customer: OrderCustomerModel.fromJson(
         Map<String, dynamic>.from(json['userId'] as Map),
       ),
+      receiverName: json['receiverName']?.toString() ?? '',
+      receiverPhone: json['receiverPhone']?.toString() ?? '',
       shopId: json['shopId']?.toString() ?? '',
       status: json['status']?.toString() ?? 'pending',
       items: ((json['items'] as List<dynamic>?) ?? [])
@@ -176,8 +182,8 @@ class OrderDetailModel {
             ),
           )
           .toList(),
-      totalAmount: OrderSummaryModel._intValue(json['totalAmount']),
-      shippingAddress: json['shippingAddress']?.toString() ?? '',
+      finalPrice: OrderSummaryModel._intValue(json['finalPrice']),
+      address: json['address']?.toString() ?? '',
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
     );
@@ -188,20 +194,17 @@ class OrderCustomerModel {
   OrderCustomerModel({
     required this.id,
     required this.name,
-    required this.email,
     required this.phone,
   });
 
   final String id;
   final String name;
-  final String email;
   final String phone;
 
   factory OrderCustomerModel.fromJson(Map<String, dynamic> json) {
     return OrderCustomerModel(
       id: json['_id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
-      email: json['email']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
     );
   }

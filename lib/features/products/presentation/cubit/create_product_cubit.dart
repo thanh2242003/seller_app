@@ -1,15 +1,33 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/product_models.dart';
+import '../../data/repositories/product_repository_impl.dart';
+import '../../domain/repositories/product_repository.dart';
 import '../../domain/usecases/product_usecases.dart';
 import 'product_state.dart';
 
 class CreateProductCubit extends Cubit<ProductDetailState> {
-  CreateProductCubit({required CreateProductUseCase createProductUseCase})
-    : _createProductUseCase = createProductUseCase,
-      super(ProductDetailState.initial());
+  CreateProductCubit({
+    required CreateProductUseCase createProductUseCase,
+    ProductRepository? repository,
+  }) : _createProductUseCase = createProductUseCase,
+       _repository = repository ?? ProductRepositoryImpl(),
+       super(ProductDetailState.initial()) {
+    loadCategories();
+  }
 
   final CreateProductUseCase _createProductUseCase;
+  final ProductRepository _repository;
+
+  Future<void> loadCategories() async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+    try {
+      final categories = await _repository.getCategories();
+      emit(state.copyWith(isLoading: false, categories: categories));
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, errorMessage: _toMessage(error)));
+    }
+  }
 
   Future<void> createProduct({
     required String title,
@@ -54,6 +72,7 @@ class CreateProductCubit extends Cubit<ProductDetailState> {
 
   void reset() {
     emit(ProductDetailState.initial());
+    loadCategories();
   }
 
   String _toMessage(Object error) {

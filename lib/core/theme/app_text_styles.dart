@@ -18,6 +18,11 @@ class AppTextStyle {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.5,
   );
+  static const TextStyle h4 = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.5,
+  );
 
   //body text
   static const TextStyle bodyLarge = TextStyle(

@@ -39,6 +39,16 @@ class AuthRemoteDataSource {
     return AuthResultModel.fromJson(_metadataMap(response));
   }
 
+  Future<AuthResultModel> refreshTokens() async {
+    final response = await _sendJson(
+      method: 'POST',
+      path: '/handlerRefreshToken',
+      authRequired: true,
+      includeRefreshToken: true,
+    );
+    return AuthResultModel.fromJson(_metadataMap(response));
+  }
+
   Future<AuthStatusModel> getShopStatus() async {
     final response = await _sendJson(
       method: 'GET',
@@ -53,6 +63,7 @@ class AuthRemoteDataSource {
     required String path,
     Map<String, dynamic>? body,
     bool authRequired = false,
+    bool includeRefreshToken = false,
   }) async {
     final uri = Uri.parse('${ApiConfig.baseUrl}$path');
 
@@ -68,6 +79,13 @@ class AuthRemoteDataSource {
       }
       headers['authorization'] = accessToken;
       headers['x-client-id'] = userId;
+      if (includeRefreshToken) {
+        final refreshToken = await _tokenStorage.getRefreshToken();
+        if (refreshToken == null || refreshToken.isEmpty) {
+          throw AuthException(401, 'Invalid request - missing refresh token');
+        }
+        headers['x-rtoken-id'] = refreshToken;
+      }
     }
 
     final response = switch (method) {

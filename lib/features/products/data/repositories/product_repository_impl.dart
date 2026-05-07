@@ -84,4 +84,9 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<void> permanentlyDeleteProduct(String productId) {
     return _remoteDataSource.permanentlyDeleteProduct(productId);
   }
+
+  @override
+  Future<List<CategoryModel>> getCategories() {
+    return _remoteDataSource.getCategories();
+  }
 }

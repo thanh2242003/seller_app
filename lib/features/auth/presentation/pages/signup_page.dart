@@ -119,14 +119,12 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     const SizedBox(height: 28),
                     AppTextField(
-                      label: 'Shop name',
                       hint: 'My Cool Shop',
                       controller: _nameController,
                       prefixIcon: Icons.store_rounded,
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
-                      label: 'Shop email',
                       hint: 'shop@example.com',
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -134,7 +132,6 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
-                      label: 'Password',
                       hint: 'SecurePassword123!',
                       controller: _passwordController,
                       isPassword: true,

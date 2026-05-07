@@ -143,6 +143,26 @@ class ProductsRemoteDataSource {
     );
   }
 
+  // ============ Get Categories ============
+
+  Future<List<CategoryModel>> getCategories() async {
+    final response = await _sendJson(
+      method: 'GET',
+      path: '/category/',
+      authRequired: false,
+    );
+    final categoriesData = response['metadata'] ?? response;
+    if (categoriesData is List) {
+      return categoriesData
+          .map(
+            (item) =>
+                CategoryModel.fromJson(Map<String, dynamic>.from(item as Map)),
+          )
+          .toList();
+    }
+    return [];
+  }
+
   // ============ HTTP Helpers ============
 
   Future<Map<String, dynamic>> _sendAuthenticatedGet({

@@ -117,6 +117,24 @@ class ShopApiService {
     return ShopOrderDetail.fromJson(metadata);
   }
 
+  Future<List<CategoryInfo>> getCategories() async {
+    final response = await _sendJson(
+      method: 'GET',
+      path: '/category/',
+      authRequired: false,
+    );
+    final categoriesData = response['metadata'] ?? response;
+    if (categoriesData is List) {
+      return categoriesData
+          .map(
+            (item) =>
+                CategoryInfo.fromJson(Map<String, dynamic>.from(item as Map)),
+          )
+          .toList();
+    }
+    return [];
+  }
+
   Future<Map<String, dynamic>> _sendJson({
     required String method,
     required String path,
@@ -642,6 +660,32 @@ class ShopOrderProduct {
           .map((item) => item.toString())
           .toList(),
       price: ShopOrderSummary._intValue(json['price']),
+    );
+  }
+}
+
+class CategoryInfo {
+  CategoryInfo({
+    required this.id,
+    required this.name,
+    this.slug,
+    this.description,
+    this.isActive,
+  });
+
+  final String id;
+  final String name;
+  final String? slug;
+  final String? description;
+  final bool? isActive;
+
+  factory CategoryInfo.fromJson(Map<String, dynamic> json) {
+    return CategoryInfo(
+      id: json['_id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      slug: json['slug']?.toString(),
+      description: json['description']?.toString(),
+      isActive: json['isActive'] as bool?,
     );
   }
 }

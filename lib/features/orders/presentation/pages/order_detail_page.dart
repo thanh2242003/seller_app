@@ -120,18 +120,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          AppNumberFormat.format(order.totalAmount),
-                          style: AppTextStyle.h3,
-                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   SectionCard(
                     title: 'Shipping',
-                    child: Text(order.shippingAddress),
+                    child: Text('Address: ${order.address}'),
                   ),
                   const SizedBox(height: 16),
                   SectionCard(
@@ -139,11 +134,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Name: ${order.customer.name}'),
+                        Text(
+                          'Name: ${order.receiverName.isNotEmpty ? order.receiverName : order.customer.name}',
+                        ),
                         const SizedBox(height: 6),
-                        Text('Email: ${order.customer.email}'),
-                        const SizedBox(height: 6),
-                        Text('Phone: ${order.customer.phone}'),
+                        Text(
+                          'Phone: ${order.receiverPhone.isNotEmpty ? order.receiverPhone : order.customer.phone}',
+                        ),
                       ],
                     ),
                   ),
@@ -164,7 +161,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   const SizedBox(height: 16),
                   SectionCard(
                     title: 'Status actions',
-                    subtitle: 'Use only valid transitions from the API docs',
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,

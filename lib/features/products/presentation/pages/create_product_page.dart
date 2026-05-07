@@ -145,43 +145,68 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         const SizedBox(height: 16),
                         AppTextField(
                           controller: _titleCtrl,
-                          label: 'Product Title *',
                           hint: 'e.g., Áo Polo Nam Xanh Đen',
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: _descriptionCtrl,
-                          label: 'Description',
                           hint: 'Product description',
                           maxLines: 4,
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: _priceCtrl,
-                          label: 'Price *',
-                          hint: '250000',
+                          hint: 'e.g.,250000',
                           keyboardType: TextInputType.number,
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: _discountedPriceCtrl,
-                          label: 'Discounted Price',
-                          hint: '199000',
+                          hint: 'e.g.,199000',
                           keyboardType: TextInputType.number,
                         ),
                         const SizedBox(height: 16),
                         Text('Category & Gender', style: AppTextStyle.h2),
                         const SizedBox(height: 16),
-                        AppTextField(
-                          controller: _categoryIdCtrl,
-                          label: 'Category ID',
-                          hint: '5f7c1c8c9d4e2a1b3c5d6e7f',
+                        BlocBuilder<CreateProductCubit, ProductDetailState>(
+                          builder: (context, state) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: DropdownButton<String>(
+                                value: _categoryIdCtrl.text.isEmpty
+                                    ? null
+                                    : _categoryIdCtrl.text,
+                                hint: const Text('Select Category'),
+                                isExpanded: true,
+                                underline: const SizedBox(),
+                                items: state.categories.map((category) {
+                                  return DropdownMenuItem<String>(
+                                    value: category.id,
+                                    child: Text(category.name),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    setState(
+                                      () => _categoryIdCtrl.text = newValue,
+                                    );
+                                  }
+                                },
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: _genderCtrl,
-                          label: 'Gender (0=Unisex, 1=Male, 2=Female)',
-                          hint: '1',
+                          hint: '0 for Unisex, 1 for Male, 2 for Female',
                           keyboardType: TextInputType.number,
                         ),
                         const SizedBox(height: 16),
@@ -189,7 +214,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         const SizedBox(height: 16),
                         AppTextField(
                           controller: _imagesCtrl,
-                          label: 'Images (comma-separated URLs)',
                           hint:
                               'https://example.com/img1.jpg, https://example.com/img2.jpg',
                           maxLines: 3,
@@ -197,7 +221,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: _sizesCtrl,
-                          label: 'Sizes (comma-separated)',
                           hint: 'S, M, L, XL, XXL',
                         ),
                         const SizedBox(height: 16),
@@ -399,18 +422,13 @@ class _AddColorDialogState extends State<_AddColorDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppTextField(
-            controller: _titleCtrl,
-            label: 'Color Name',
-            hint: 'e.g., Xanh, Đen',
-          ),
+          AppTextField(controller: _titleCtrl, hint: 'e.g., Xanh, Đen'),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: AppTextField(
                   controller: _rCtrl,
-                  label: 'R',
                   hint: '0',
                   keyboardType: TextInputType.number,
                 ),
@@ -419,7 +437,6 @@ class _AddColorDialogState extends State<_AddColorDialog> {
               Expanded(
                 child: AppTextField(
                   controller: _gCtrl,
-                  label: 'G',
                   hint: '0',
                   keyboardType: TextInputType.number,
                 ),
@@ -428,7 +445,6 @@ class _AddColorDialogState extends State<_AddColorDialog> {
               Expanded(
                 child: AppTextField(
                   controller: _bCtrl,
-                  label: 'B',
                   hint: '0',
                   keyboardType: TextInputType.number,
                 ),
@@ -526,7 +542,6 @@ class _AddVariantDialogState extends State<_AddVariantDialog> {
           const SizedBox(height: 12),
           AppTextField(
             controller: _stockCtrl,
-            label: 'Stock',
             hint: '10',
             keyboardType: TextInputType.number,
           ),
