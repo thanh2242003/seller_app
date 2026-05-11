@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -24,11 +25,11 @@ class _CreateProductPageState extends State<CreateProductPage> {
   late final TextEditingController _discountedPriceCtrl;
   late final TextEditingController _categoryIdCtrl;
   late final TextEditingController _genderCtrl;
-  late final TextEditingController _imagesCtrl;
   late final TextEditingController _sizesCtrl;
 
   final List<ProductColorModel> _colors = [];
   final List<ProductVariantModel> _variants = [];
+  final List<String> _imagePaths = [];
 
   @override
   void initState() {
@@ -39,7 +40,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
     _discountedPriceCtrl = TextEditingController();
     _categoryIdCtrl = TextEditingController();
     _genderCtrl = TextEditingController();
-    _imagesCtrl = TextEditingController();
     _sizesCtrl = TextEditingController();
   }
 
@@ -51,9 +51,46 @@ class _CreateProductPageState extends State<CreateProductPage> {
     _discountedPriceCtrl.dispose();
     _categoryIdCtrl.dispose();
     _genderCtrl.dispose();
-    _imagesCtrl.dispose();
     _sizesCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImages() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.image,
+    );
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final selectedPaths = result.files
+        .map((file) => file.path)
+        .whereType<String>()
+        .toList();
+
+    if (selectedPaths.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không lấy được đường dẫn ảnh từ trình chọn file'),
+        ),
+      );
+      return;
+    }
+
+    final merged = [..._imagePaths, ...selectedPaths];
+    if (merged.length > 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Chỉ được chọn tối đa 5 ảnh')),
+      );
+      return;
+    }
+
+    setState(() {
+      _imagePaths
+        ..clear()
+        ..addAll(merged);
+    });
   }
 
   void _addColor() {
@@ -90,8 +127,14 @@ class _CreateProductPageState extends State<CreateProductPage> {
       return;
     }
 
-    final images = _imagesCtrl.text.split(',').map((e) => e.trim()).toList();
     final sizes = _sizesCtrl.text.split(',').map((e) => e.trim()).toList();
+
+    if (_imagePaths.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one image')),
+      );
+      return;
+    }
 
     context.read<CreateProductCubit>().createProduct(
       title: _titleCtrl.text,
@@ -100,7 +143,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
       discountedPrice: int.tryParse(_discountedPriceCtrl.text) ?? 0,
       categoryId: _categoryIdCtrl.text,
       gender: int.tryParse(_genderCtrl.text) ?? 0,
-      images: images,
+      imagePaths: _imagePaths,
       sizes: sizes,
       colors: _colors,
       variants: _variants,
@@ -212,11 +255,57 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         const SizedBox(height: 16),
                         Text('Images & Sizes', style: AppTextStyle.h2),
                         const SizedBox(height: 16),
-                        AppTextField(
-                          controller: _imagesCtrl,
-                          hint:
-                              'https://example.com/img1.jpg, https://example.com/img2.jpg',
-                          maxLines: 3,
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _imagePaths.isEmpty
+                                          ? 'No images selected'
+                                          : 'Selected ${_imagePaths.length}/5 images',
+                                    ),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: _pickImages,
+                                    icon: const Icon(Icons.image_outlined),
+                                    label: const Text('Choose Images'),
+                                  ),
+                                ],
+                              ),
+                              if (_imagePaths.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: List.generate(_imagePaths.length, (
+                                    index,
+                                  ) {
+                                    final path = _imagePaths[index];
+                                    final fileName = path
+                                        .split(RegExp(r'[\\/]'))
+                                        .last;
+                                    return InputChip(
+                                      label: Text(fileName),
+                                      onDeleted: () {
+                                        setState(() {
+                                          _imagePaths.removeAt(index);
+                                        });
+                                      },
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 12),
                         AppTextField(

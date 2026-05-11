@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../../../../core/config/api_config.dart';
 import '../../../../core/storage/token_storage.dart';
@@ -54,10 +55,11 @@ class ProductsRemoteDataSource {
   Future<ProductDetailModel> createProduct({
     required CreateProductRequest request,
   }) async {
-    final response = await _sendJson(
+    final response = await _sendMultipart(
       method: 'POST',
       path: '/product',
-      body: request.toJson(),
+      fields: request.toFormFields(),
+      imagePaths: request.imagePaths,
       authRequired: true,
     );
     return ProductDetailModel.fromJson(_metadataMap(response));
@@ -76,10 +78,12 @@ class ProductsRemoteDataSource {
     required String productId,
     required Map<String, dynamic> updates,
   }) async {
-    final response = await _sendJson(
+    final payload = _toMultipartPayload(updates);
+    final response = await _sendMultipart(
       method: 'PATCH',
       path: '/product/$productId',
-      body: updates,
+      fields: payload.fields,
+      imagePaths: payload.imagePaths,
       authRequired: true,
     );
     return ProductDetailModel.fromJson(_metadataMap(response));
@@ -259,6 +263,116 @@ class ProductsRemoteDataSource {
     return decoded;
   }
 
+  Future<Map<String, dynamic>> _sendMultipart({
+    required String method,
+    required String path,
+    Map<String, String>? fields,
+    List<String>? imagePaths,
+    bool authRequired = false,
+  }) async {
+    final uri = Uri.parse('${ApiConfig.baseUrl}$path');
+    final request = http.MultipartRequest(method, uri);
+
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
+
+    if (imagePaths != null) {
+      for (final imagePath in imagePaths) {
+        if (imagePath.trim().isEmpty) {
+          continue;
+        }
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'images',
+            imagePath,
+            contentType: _mediaTypeForPath(imagePath),
+          ),
+        );
+      }
+    }
+
+    if (authRequired) {
+      request.headers.addAll(await _authHeaders());
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    final decoded = _decodeResponse(response.body);
+    final code = decoded['code'] is int
+        ? decoded['code'] as int
+        : response.statusCode;
+    final message = decoded['message']?.toString() ?? 'Request failed';
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300 ||
+        code >= 400) {
+      throw ProductException(code, message, decoded['metadata']);
+    }
+
+    return decoded;
+  }
+
+  Future<Map<String, String>> _authHeaders() async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    final userId = await _tokenStorage.getUserId();
+    if (accessToken == null || accessToken.isEmpty) {
+      throw ProductException(401, 'Invalid request - missing access token');
+    }
+    if (userId == null || userId.isEmpty) {
+      throw ProductException(401, 'Invalid request - missing client ID');
+    }
+
+    return {'authorization': accessToken, 'x-client-id': userId};
+  }
+
+  _MultipartPayload _toMultipartPayload(Map<String, dynamic> updates) {
+    final fields = <String, String>{};
+    final imagePaths = <String>[];
+
+    updates.forEach((key, value) {
+      if (value == null) {
+        return;
+      }
+
+      if (key == 'images') {
+        if (value is Iterable) {
+          imagePaths.addAll(value.map((item) => item.toString()));
+        } else {
+          imagePaths.add(value.toString());
+        }
+        return;
+      }
+
+      if (value is String) {
+        fields[key] = value;
+      } else if (value is num || value is bool) {
+        fields[key] = value.toString();
+      } else {
+        fields[key] = jsonEncode(value);
+      }
+    });
+
+    return _MultipartPayload(fields: fields, imagePaths: imagePaths);
+  }
+
+  MediaType? _mediaTypeForPath(String path) {
+    final lowerPath = path.toLowerCase();
+    if (lowerPath.endsWith('.jpg') || lowerPath.endsWith('.jpeg')) {
+      return MediaType('image', 'jpeg');
+    }
+    if (lowerPath.endsWith('.png')) {
+      return MediaType('image', 'png');
+    }
+    if (lowerPath.endsWith('.gif')) {
+      return MediaType('image', 'gif');
+    }
+    if (lowerPath.endsWith('.webp')) {
+      return MediaType('image', 'webp');
+    }
+    return null;
+  }
+
   Map<String, dynamic> _decodeResponse(String body) {
     final decoded = jsonDecode(body);
     if (decoded is Map<String, dynamic>) {
@@ -277,4 +391,11 @@ class ProductsRemoteDataSource {
     }
     return <String, dynamic>{};
   }
+}
+
+class _MultipartPayload {
+  _MultipartPayload({required this.fields, required this.imagePaths});
+
+  final Map<String, String> fields;
+  final List<String> imagePaths;
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class ProductException implements Exception {
   ProductException(this.code, this.message, [this.metadata]);
 
@@ -68,7 +70,7 @@ class CreateProductRequest {
     required this.discountedPrice,
     required this.categoryId,
     required this.gender,
-    required this.images,
+    required this.imagePaths,
     required this.sizes,
     required this.colors,
     required this.variants,
@@ -80,22 +82,21 @@ class CreateProductRequest {
   final int discountedPrice;
   final String categoryId;
   final int gender;
-  final List<String> images;
+  final List<String> imagePaths;
   final List<String> sizes;
   final List<ProductColorModel> colors;
   final List<ProductVariantModel> variants;
 
-  Map<String, dynamic> toJson() => {
+  Map<String, String> toFormFields() => {
     'title': title,
     'description': description,
-    'price': price,
-    'discountedPrice': discountedPrice,
+    'price': price.toString(),
+    'discountedPrice': discountedPrice.toString(),
     'categoryId': categoryId,
-    'gender': gender,
-    'images': images,
-    'sizes': sizes,
-    'colors': colors.map((c) => c.toJson()).toList(),
-    'variants': variants.map((v) => v.toJson()).toList(),
+    'gender': gender.toString(),
+    'sizes': _encodeJson(sizes),
+    'colors': _encodeJson(colors.map((c) => c.toJson()).toList()),
+    'variants': _encodeJson(variants.map((v) => v.toJson()).toList()),
   };
 }
 
@@ -432,3 +433,5 @@ DateTime? _parseDate(dynamic value) {
   }
   return DateTime.tryParse(value.toString());
 }
+
+String _encodeJson(Object? value) => jsonEncode(value);
